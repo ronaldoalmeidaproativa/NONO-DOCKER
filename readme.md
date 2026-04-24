@@ -1,8 +1,8 @@
-### n8n + Evolution API (Docker Starter)
+### n8n + Evolution API + Supabase (Docker Starter)
 
-Guia rápido para clonar, configurar e subir este template (n8n + Evolution API + Postgres + Redis) utilizando Docker.
+Guia rápido para clonar, configurar e subir este template (n8n + Evolution API + Supabase + Postgres + Redis) utilizando Docker.
 
-Este repositório é um modelo com uma Stack Padrão que integra o n8n ao Evolution API, utilizando PostgreSQL como banco de dados e Redis como cache. Ele fornece uma estrutura pronta para desenvolvimento e automação, com serviços orquestrados via Docker Compose.
+Este repositório é um modelo com uma Stack Padrão que integra o n8n, Evolution API e Supabase, utilizando PostgreSQL como banco de dados e Redis como cache. Ele fornece uma estrutura pronta para desenvolvimento e automação, com serviços orquestrados via Docker Compose.
 
 ### Pré‑requisitos
 
@@ -47,6 +47,9 @@ Isso criará e iniciará os serviços definidos em `docker-compose.yaml`.
 - **n8n**: `http://localhost:5678`
 
 - **Evolution API**: `http://localhost:8085/manager/`
+
+- **Supabase Studio**: `http://localhost:8050` (Interface de gerenciamento do banco de dados e serviços Supabase)
+
 Observação: os serviços também se comunicam entre si via a rede interna `evolution_n8n_net` do Docker.
 
 ### URLs/Hosts para configurar nos painéis (rede interna do Docker)
@@ -69,6 +72,23 @@ Use o host `redis-n8n` e a porta `6379` no momento de criar uma credencial do Re
 use `http://n8n:5678/<resto-da-url>` ao invés de `http://localhost:5678/<resto-da-url>` sempre que for configuar a url do Wbehoook do n8n em alguma instância da Evolution.
   
 <img src="assets/n8n-webhook.png" alt="Exemplo de configuração do Webhook do n8n" width="750"/>
+
+### Conectando sua aplicação ao Supabase
+
+Para conectar um framework frontend (como Next.js) ao Supabase local, você deve utilizar as variáveis de ambiente apontando para o Gateway do Supabase (Kong).
+
+Ao configurar seu projeto (ex.: Next.js com App Router), siga as instruções da interface do Supabase Studio para instalar a biblioteca cliente e configurar os arquivos de conexão.
+
+<img src="assets/supabase-connect.png" alt="Conexão com Supabase" width="750"/>
+
+**Explicação Técnica (Baseada na Imagem):**
+1. **Framework**: No exemplo, utilizamos o Next.js com App Router.
+2. **Instalação**: Execute `npm install @supabase/supabase-js` para adicionar a dependência oficial.
+3. **Variáveis de Ambiente**:
+   - `NEXT_PUBLIC_SUPABASE_URL`: Deve apontar para `http://supabase-kong:8000` (quando a comunicação for interna entre containers) ou `http://localhost:8050` (quando acessado pelo navegador do host).
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Utilize a chave anônima fornecida no seu arquivo `.env`.
+
+Esta configuração permite que seu agente de IA ou sua aplicação utilize toda a potência do Supabase de forma local e integrada.
 
 ### Comandos úteis
 ```bash
@@ -99,6 +119,11 @@ docker compose pull && docker compose up -d --remove-orphans
 - `n8n`: n8n exposto em `5678`, usa `.env` e configurado para usar Postgres e Redis.
 - `postgres-n8n`: Banco do n8n.
 - `redis-n8n`: Redis para o n8n.
+- `supabase-db`: Banco de dados PostgreSQL do Supabase.
+- `supabase-kong`: API Gateway do Supabase (porta `8000` interna / `8050` externa).
+- `supabase-studio`: Painel administrativo do Supabase (Studio).
+- `supabase-auth`: Serviço de autenticação GoTrue.
+- `supabase-storage`: Serviço de armazenamento de arquivos.
 
 ### Dicas e solução de problemas
 - **.env**: garanta que `.env` exista (copiado de `.env.example`) e com `AUTHENTICATION_API_KEY` definida.
